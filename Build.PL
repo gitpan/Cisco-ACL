@@ -1,0 +1,30 @@
+#
+# $Id: Build.PL,v 1.3 2004/01/29 01:18:09 james Exp $
+#
+
+use Module::Build;
+
+my $build = Module::Build->new(
+	module_name         => 'Cisco::ACL',
+    dist_version_from   => 'lib/Cisco/ACL.pm',
+	license             => 'perl',
+    create_makefile_pl  => 'passthrough',
+    create_readme       => 1,
+    script_files        => [ 'bin/aclmaker.pl' ],
+    requires            => {
+        Class::MethodMaker => 0,
+        Params::Validate   => '0.65',
+    },
+    recommends          => {
+        CGI             => 0,
+    },
+    build_requires      => {
+        Test::More      => 0,
+        Test::Exception => 0,
+    },
+);
+
+$build->create_build_script;
+
+#
+# EOF
