@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: aclmaker.pl,v 1.1 2004/01/29 12:15:06 james Exp $
+# $Id: aclmaker.pl 86 2004-06-18 20:18:01Z james $
 #
 
 =head1 NAME

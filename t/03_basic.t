@@ -1,5 +1,5 @@
 #
-# $Id: 03_basic.t,v 1.2 2004/01/27 15:34:41 james Exp $
+# $Id: 03_basic.t 86 2004-06-18 20:18:01Z james $
 #
 
 use strict;

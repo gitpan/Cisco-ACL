@@ -1,5 +1,5 @@
 #
-# $Id: 01_use.t,v 1.4 2004/05/27 16:20:16 james Exp $
+# $Id: 01_use.t 86 2004-06-18 20:18:01Z james $
 #
 
 use strict;
@@ -8,7 +8,7 @@ use warnings;
 use Test::More tests => 2;
 
 use_ok('Cisco::ACL');
-is($Cisco::ACL::VERSION, '0.11', 'check module version');
+is($Cisco::ACL::VERSION, '0.12', 'check module version');
 
 #
 # EOF

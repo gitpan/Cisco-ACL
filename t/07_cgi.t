@@ -1,5 +1,5 @@
 #
-# $Id: 07_cgi.t,v 1.1 2004/01/29 01:18:11 james Exp $
+# $Id: 07_cgi.t 86 2004-06-18 20:18:01Z james $
 #
 
 use Test::More tests => 4;
