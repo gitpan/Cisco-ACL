@@ -1,5 +1,5 @@
 #
-# $Id: ACL.pm,v 1.3 2004/01/29 01:18:11 james Exp $
+# $Id: ACL.pm,v 1.7 2004/05/27 16:24:43 james Exp $
 #
 
 =head1 NAME
@@ -36,7 +36,7 @@ package Cisco::ACL;
 use strict;
 use warnings;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 use Carp                    qw|croak|;
 use Params::Validate        qw|:all|;
@@ -99,6 +99,7 @@ sub init
         elsif( $args{$_} ) {
             $self->$_( $args{$_} );
         }
+	
     }
 
     return $self;
@@ -123,7 +124,6 @@ sub _generate
 {
 
     my $self = shift;
-    
     my @source_addr_elements = breakout_addrs(
         $self->src_addr_count ? $self->src_addr : 'any'
     );
@@ -279,33 +279,40 @@ sub _generate
     sub breakout_ports {
         my @list = @_;
         my ($tidbit,@endpoints,$start,$end,$i,$number_of_endpoints,@elements);
+	   
         foreach $tidbit( @list ) {
-    	if ($tidbit =~ /\-/) {
-    	    @endpoints = split(/\-/, $tidbit);
 
-    	    $number_of_endpoints = @endpoints;
-    	    if ($number_of_endpoints != 2) {
-    		next;
-    	    };
+            if ($tidbit =~ /\-/) {
 
-    	    $start = $endpoints[0];
-    	    $end = $endpoints[1];
-
-    	    if ($start >= $end) {
-    		next;
-    	    };
-
-    	    for ($i = $start; $i <= $end; $i++) {
-    		push @elements, "eq $i";
-    	    };
-    	}
+                @endpoints = split(/\-/, $tidbit);
+            
+                $number_of_endpoints = @endpoints;
+                if ($number_of_endpoints != 2) {
+                    next;
+                };
+                
+                $start = $endpoints[0];
+                $end = $endpoints[1];
+	
+                # flip range ends if they are backward
+                if ($start >= $end) {
+                    ($start, $end) = ($end, $start);
+                };
+		
+                push @elements, "range $start $end";
+	        
+            }
             else {
-    	    push @elements, "eq $tidbit";
-    	}
+            
+                push @elements, "eq $tidbit";
+            
+            }
         };
+        
         return(@elements);
+    
     };
-
+    
     #
     #-------------------------------------------------------------------
     #
@@ -654,12 +661,13 @@ a.a.a.a-b.b.b.b or a.a.a.a-b, or a CIDR block in the format x.x.x.x/nn. Use
 the word "any" to specify all addresses. For example, all of the following
 are legal:
 
-10.10.10.20
-10.10.10.10-200
-20.20.20.20-30.30.30.30,10.10.10.20
-10.10.10.10-200
-10.10.10.10/8
-45.45.45.45 
+  10.10.10.20
+  10.10.10.10-200
+  20.20.20.20-30.30.30.30
+  10.10.10.20
+  10.10.10.10-200
+  10.10.10.10/8
+  45.45.45.45 
 
 Multiple entries may be passed to the accessor functions.
 
@@ -670,12 +678,9 @@ the list of addresses.
 
 =head2 src_port() [list]
 
-A list of source ports or source port ranges. A range of ports is denoted as
-two port numbers joined by a C<->. The first port must be lower than the
-second. The same methods as src_addr() (renamed) are also available.
-
-Note that while IOS supports port ranges, using a range of ports will create
-as many access lists as the range is large. See L<"TODO">.
+A list of source ports or source port ranges. A range of ports is denoted as two
+port numbers joined by a C<->. The same methods as src_addr() (renamed) are also
+available.
 
 =head2 dst_addr() [list]
 
@@ -731,6 +736,19 @@ it is TCP or UDP) to or from 24.223.251.222:
 
 =for example end
 
+Using multiple addresses and/or ports: permit SSH and SFTP traffic from
+192.168.1.1/25 and 10.1.1.1/26 to anywhere.
+
+=for example begin
+
+  my $acl = Cisco::ACL->new(
+    src_addr => [ '192.168.1.1/25', '10.1.1.1/26' ],
+    dst_port => [ 22, 25 ],
+  );
+  print "$_\n" for( $acl->acls );
+
+=for example end
+
 =head1 BUGS
 
 These are the known limitations from the original acl.pl. I hope to address
@@ -743,12 +761,6 @@ these in the near future.
 Address ranges must be supplied in ascending order, e.g.
 10.10.10.10-10.10.20.20. If you use 10.10.20.20-10.10.10.10 it won't handle
 that.
-
-=item * Port Range Syntax
-
-Cisco ACL syntax supports a port range specification, like 1000-2000. This
-script doesn't, yet; if you give it 1000-2000 it will happily generate 1000+
-access lists for you.
 
 =item * Permit/Deny in one rule
 
@@ -780,10 +792,6 @@ CGI.pm instead.
 I want to build up the test suite to a fair size and then start looking
 for places to make things cleaner, faster, smaller, etc.
 
-=item * support Cisco's port range syntax
-
-This is a TODO that Chris noted when he gave me the source.
-
 =item * make sure that everything produced is up-to-date with IOS
 
 It's been a while since I've had to play with a Cisco, so what I know
@@ -809,6 +817,11 @@ Chris De Young (chd AT chud DOT net). I was about to embark on writing a
 module to do this from scratch when I stumbed across his web version, which
 was procedural. He graciously accepted my offer to OOP-ize the code. Any
 mistakes in this module are probably mine.
+
+=head1 CONTRIBUTORS
+
+Nicolas Georgel contribued changes to implement Cisco's port range syntax and to
+allow for port numbers to be specified in reverse order (highest first).
 
 =head1 COPYRIGHT
 

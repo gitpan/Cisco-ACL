@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id$
+# $Id: aclmaker.pl,v 1.1 2004/01/29 12:15:06 james Exp $
 #
 
 =head1 NAME
@@ -93,10 +93,12 @@ may supply a comma-separated list of any or all of these formats. Use the
 word "any" to specify all addresses. For example, all of the following are
 legal:
 
-10.10.10.20
-10.10.10.10-200
-20.20.20.20-30.30.30.30,10.10.10.20,10.10.10.10-200
-10.10.10.10/8,45.45.45.45 
+  10.10.10.20
+  10.10.10.10-200
+  20.20.20.20-30.30.30.30
+  10.10.10.20
+  10.10.10.10-200
+  10.10.10.10/8,45.45.45.45 
 
 =item * src_port
 
